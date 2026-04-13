@@ -1,5 +1,4 @@
-import { Mic, Brain, User, Activity, BrainCircuit, Video, Clock, CheckCircle } from "lucide-react"
-
+import { Mic, Brain, User, Activity, BrainCircuit, Video, MonitorPlay, Waves } from "lucide-react"
 export default function InterviewSession() {
   return (
     <div className="h-[80vh] flex flex-col gap-6 animate-fade-in relative">
