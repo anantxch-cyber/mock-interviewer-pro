@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Interview — InterviewAI Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="ambient-bg">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+  </div>
+
+  <nav class="nav nav-scrolled">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon"><i data-lucide="brain-circuit"></i></div>
+        <span>InterviewAI</span>
+      </a>
+      <div class="nav-actions">
+        <button class="btn btn-ghost" onclick="history.back()">
+          <i data-lucide="arrow-left"></i> Back
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="setup-page">
+    <div class="setup-header">
+      <h1>Configure Your <span class="gradient-text">Interview</span></h1>
+      <p>Set up a realistic session tailored to your target role and skill level.</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step active" id="step1-ind"><div class="step-num">1</div></div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step" id="step2-ind"><div class="step-num">2</div></div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step" id="step3-ind"><div class="step-num">3</div></div>
+    </div>
+
+    <!-- Step 1: Mode -->
+    <div id="step1" class="setup-card">
+      <h2>1. Choose Interview Mode</h2>
+      <div class="mode-select-grid" id="modeGrid">
+        <label class="mode-select-item selected" data-mode="technical">
+          <input type="radio" name="mode" value="technical" checked>
+          <div class="mode-select-icon" style="background:rgba(99,102,241,0.15); color:#6366f1"><i data-lucide="code-2"></i></div>
+          <div><h4>Technical</h4><p>DS&A, System Design, Coding concepts</p></div>
+        </label>
+        <label class="mode-select-item" data-mode="behavioral">
+          <input type="radio" name="mode" value="behavioral">
+          <div class="mode-select-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b"><i data-lucide="message-circle"></i></div>
+          <div><h4>Behavioral</h4><p>STAR stories, leadership, teamwork</p></div>
+        </label>
+        <label class="mode-select-item" data-mode="hr">
+          <input type="radio" name="mode" value="hr">
+          <div class="mode-select-icon" style="background:rgba(16,185,129,0.15); color:#10b981"><i data-lucide="users"></i></div>
+          <div><h4>HR Round</h4><p>Culture fit, salary, motivations</p></div>
+        </label>
+        <label class="mode-select-item" data-mode="stress">
+          <input type="radio" name="mode" value="stress">
+          <div class="mode-select-icon" style="background:rgba(239,68,68,0.15); color:#ef4444"><i data-lucide="zap"></i></div>
+          <div><h4>Stress Test</h4><p>Rapid fire, pressure, interruptions</p></div>
+        </label>
+        <label class="mode-select-item" data-mode="system-design">
+          <input type="radio" name="mode" value="system-design">
+          <div class="mode-select-icon" style="background:rgba(168,85,247,0.15); color:#a855f7"><i data-lucide="network"></i></div>
+          <div><h4>System Design</h4><p>Architecture, scalability, tradeoffs</p></div>
+        </label>
+        <label class="mode-select-item" data-mode="resume">
+          <input type="radio" name="mode" value="resume">
+          <div class="mode-select-icon" style="background:rgba(6,182,212,0.15); color:#06b6d4"><i data-lucide="file-text"></i></div>
+          <div><h4>Resume-Based</h4><p>Questions from your own projects</p></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 2: Details -->
+    <div id="step2" class="setup-card hidden">
+      <h2>2. Your Profile & Target Role</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Target Role</label>
+          <select class="form-select" id="targetRole">
+            <option>Software Engineer (Frontend)</option>
+            <option>Software Engineer (Backend)</option>
+            <option>Full Stack Developer</option>
+            <option>Data Scientist</option>
+            <option>Data Analyst</option>
+            <option>Product Manager</option>
+            <option>DevOps Engineer</option>
+            <option>ML Engineer</option>
+            <option>Sales Executive</option>
+            <option>HR Manager</option>
+            <option>Business Analyst</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Experience Level</label>
+          <select class="form-select" id="expLevel">
+            <option value="fresher">Fresher / 0–1 yr</option>
+            <option value="junior" selected>Junior / 1–3 yrs</option>
+            <option value="mid">Mid-level / 3–6 yrs</option>
+            <option value="senior">Senior / 6+ yrs</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Target Company (Optional)</label>
+          <input type="text" class="form-input" id="targetCompany" placeholder="e.g. Google, Amazon, Startup...">
+          <div class="form-hint">We'll tailor questions to match the company's interview culture.</div>
+        </div>
+        <div class="form-group">
+          <label>Number of Questions</label>
+          <select class="form-select" id="numQuestions">
+            <option value="5">5 Questions (Quick, ~15 min)</option>
+            <option value="8" selected>8 Questions (Standard, ~25 min)</option>
+            <option value="12">12 Questions (Full round, ~40 min)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Focus Areas (Optional)</label>
+        <input type="text" class="form-input" id="focusAreas" placeholder="e.g. React, Node.js, SQL, Leadership...">
+        <div class="form-hint">Separate multiple topics with commas.</div>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirm -->
+    <div id="step3" class="setup-card hidden">
+      <h2>3. Confirm & Launch</h2>
+      <div id="summaryBox" style="display:flex;flex-direction:column;gap:16px;"></div>
+      <div style="margin-top:24px;padding:16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:12px;">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--primary);margin-bottom:8px;">💡 PRO TIP</div>
+        <div style="font-size:0.875rem;color:var(--text-2);line-height:1.5;">Try to speak your answers out loud using the voice mode. Users who speak answers improve their confidence score 3x faster than those who only type.</div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="setup-actions">
+      <button class="btn btn-ghost" id="btnBack" onclick="prevStep()" style="display:none;">
+        <i data-lucide="arrow-left"></i> Back
+      </button>
+      <button class="btn btn-primary glow" id="btnNext" onclick="nextStep()">
+        Continue <i data-lucide="arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    let currentStep = 1;
+    const totalSteps = 3;
+    const selectedConfig = { mode: 'technical', role: '', exp: 'junior', company: '', numQ: 8, focus: '' };
+
+    // Mode selection
+    document.getElementById('modeGrid').addEventListener('click', e => {
+      const item = e.target.closest('.mode-select-item');
+      if (!item) return;
+      document.querySelectorAll('.mode-select-item').forEach(el => el.classList.remove('selected'));
+      item.classList.add('selected');
+      item.querySelector('input').checked = true;
+      selectedConfig.mode = item.dataset.mode;
+    });
+
+    // Pre-select from URL param
+    const urlMode = new URLSearchParams(window.location.search).get('mode');
+    if (urlMode) {
+      document.querySelectorAll('.mode-select-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.mode === urlMode);
+        if (el.dataset.mode === urlMode) el.querySelector('input').checked = true;
+      });
+      selectedConfig.mode = urlMode;
+    }
+
+    function nextStep() {
+      if (currentStep === 1) {
+        currentStep = 2;
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        document.getElementById('step2-ind').classList.add('active');
+        document.getElementById('line-1').style.background = 'var(--green)';
+        document.getElementById('step1-ind').classList.add('done');
+        document.getElementById('btnBack').style.display = '';
+        document.getElementById('btnNext').innerHTML = 'Continue <i data-lucide="arrow-right"></i>';
+
+      } else if (currentStep === 2) {
+        selectedConfig.role = document.getElementById('targetRole').value;
+        selectedConfig.exp = document.getElementById('expLevel').value;
+        selectedConfig.company = document.getElementById('targetCompany').value;
+        selectedConfig.numQ = parseInt(document.getElementById('numQuestions').value);
+        selectedConfig.focus = document.getElementById('focusAreas').value;
+
+        currentStep = 3;
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        document.getElementById('step3-ind').classList.add('active');
+        document.getElementById('line-2').style.background = 'var(--green)';
+        document.getElementById('step2-ind').classList.add('done');
+
+        renderSummary();
+        document.getElementById('btnNext').innerHTML = '🚀 Launch Interview';
+
+      } else if (currentStep === 3) {
+        // Save config and go to interview
+        localStorage.setItem('interviewConfig', JSON.stringify(selectedConfig));
+        location.href = 'interview.html';
+      }
+      lucide.createIcons();
+    }
+
+    function prevStep() {
+      if (currentStep === 2) {
+        currentStep = 1;
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
+        document.getElementById('step2-ind').classList.remove('active', 'done');
+        document.getElementById('line-1').style.background = '';
+        document.getElementById('btnBack').style.display = 'none';
+      } else if (currentStep === 3) {
+        currentStep = 2;
+        document.getElementById('step3').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        document.getElementById('step3-ind').classList.remove('active');
+        document.getElementById('line-2').style.background = '';
+        document.getElementById('step2-ind').classList.remove('done');
+        document.getElementById('step2-ind').classList.add('active');
+        document.getElementById('btnNext').innerHTML = 'Continue <i data-lucide="arrow-right"></i>';
+      }
+      lucide.createIcons();
+    }
+
+    function renderSummary() {
+      const modeLabels = { technical:'Technical', behavioral:'Behavioral', hr:'HR Round', stress:'Stress Test', 'system-design':'System Design', resume:'Resume-Based' };
+      document.getElementById('summaryBox').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          ${[
+            ['Interview Mode', modeLabels[selectedConfig.mode] || selectedConfig.mode],
+            ['Target Role', selectedConfig.role || '—'],
+            ['Experience Level', selectedConfig.exp],
+            ['Questions', selectedConfig.numQ + ' questions'],
+            ['Company', selectedConfig.company || 'Generic'],
+            ['Focus', selectedConfig.focus || 'All topics'],
+          ].map(([k,v]) => `
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:14px;">
+              <div style="font-size:0.7rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">${k}</div>
+              <div style="font-weight:600;font-size:0.95rem">${v}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

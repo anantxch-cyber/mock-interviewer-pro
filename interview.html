@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Session — InterviewAI Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="ambient-bg">
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+</div>
+
+<div class="interview-page">
+  <!-- Top Bar -->
+  <div class="interview-topbar">
+    <div class="interview-topbar-left">
+      <div class="recording-dot"></div>
+      <div class="interview-meta">
+        <strong id="modeLabel">Technical Interview</strong>
+        <span> · </span>
+        <span id="roleLabel">Software Engineer</span>
+      </div>
+    </div>
+    <div class="timer" id="sessionTimer">00:00</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" id="btnSkip" style="padding:7px 14px;font-size:0.8rem;">Skip →</button>
+      <button class="btn btn-danger" id="btnEnd" style="padding:7px 14px;font-size:0.8rem;">End Session</button>
+    </div>
+  </div>
+
+  <!-- Interview Body -->
+  <div class="interview-body">
+    <!-- Main Area -->
+    <div class="interview-main">
+      <!-- Q Breadcrumb -->
+      <div class="q-breadcrumb" id="qBreadcrumb"></div>
+
+      <!-- Question Box -->
+      <div class="question-box" id="questionBox">
+        <div class="q-meta">
+          <span class="q-number" id="qNumber">Question 1 of 8</span>
+          <span class="q-type-badge" id="qTypeBadge">Technical</span>
+          <div class="q-ai-indicator">
+            <div class="ai-pulse"></div>
+            <span>AI Adaptive Mode</span>
+          </div>
+        </div>
+        <div class="question-text" id="questionText">Loading your personalized question...</div>
+      </div>
+
+      <!-- Answer Section -->
+      <div class="answer-section">
+        <div class="answer-tabs">
+          <button class="answer-tab active" id="tabText" onclick="switchTab('text')">
+            <i data-lucide="type"></i> Type Answer
+          </button>
+          <button class="answer-tab" id="tabVoice" onclick="switchTab('voice')">
+            <i data-lucide="mic"></i> Voice Answer
+          </button>
+        </div>
+
+        <div class="answer-area" id="answerArea">
+          <textarea class="answer-textarea" id="answerTextarea" placeholder="Type your answer here... Be detailed and structured. Use the STAR method for behavioral questions."></textarea>
+        </div>
+
+        <div class="voice-ui" id="voiceUI">
+          <div class="voice-waveform" id="waveform">
+            <div class="wave-bar" style="height:8px"></div>
+            <div class="wave-bar" style="height:8px"></div>
+            <div class="wave-bar" style="height:8px"></div>
+            <div class="wave-bar" style="height:8px"></div>
+            <div class="wave-bar" style="height:8px"></div>
+            <div class="wave-bar" style="height:8px"></div>
+            <div class="wave-bar" style="height:8px"></div>
+          </div>
+          <button class="mic-button" id="micButton" onclick="toggleRecording()">
+            <i data-lucide="mic" id="micIcon"></i>
+          </button>
+          <div class="transcript-preview" id="transcriptPreview">Press the microphone button to start speaking your answer</div>
+        </div>
+
+        <div class="answer-controls">
+          <div class="answer-controls-left">
+            <button class="btn btn-ghost" onclick="document.getElementById('answerTextarea').value=''">
+              <i data-lucide="rotate-ccw"></i> Clear
+            </button>
+          </div>
+          <button class="btn btn-primary glow" id="btnSubmit" onclick="submitAnswer()">
+            Submit Answer <i data-lucide="send"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Telemetry -->
+    <div class="interview-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Live Telemetry</div>
+        <div class="telemetry">
+          <div class="tele-item">
+            <div class="tele-head">
+              <span class="tele-name">Speaking Pace</span>
+              <span class="tele-val tele-ok" id="paceVal">Optimal</span>
+            </div>
+            <div class="tele-track"><div class="tele-fill" id="paceFill" style="width:70%;background:var(--green)"></div></div>
+          </div>
+          <div class="tele-item">
+            <div class="tele-head">
+              <span class="tele-name">Answer Length</span>
+              <span class="tele-val tele-warn" id="lengthVal">Too Short</span>
+            </div>
+            <div class="tele-track"><div class="tele-fill" id="lengthFill" style="width:15%;background:var(--yellow)"></div></div>
+          </div>
+          <div class="tele-item">
+            <div class="tele-head">
+              <span class="tele-name">Confidence Signal</span>
+              <span class="tele-val tele-ok" id="confVal">High</span>
+            </div>
+            <div class="tele-track"><div class="tele-fill" id="confFill" style="width:82%;background:var(--primary)"></div></div>
+          </div>
+          <div class="tele-item">
+            <div class="tele-head">
+              <span class="tele-name">Filler Words</span>
+              <span class="tele-val tele-warn" id="fillerVal">3 detected</span>
+            </div>
+            <div class="filler-timeline" id="fillerTimeline">
+              <!-- blips injected by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section" style="flex:1;overflow-y:auto;">
+        <div class="sidebar-section-title">AI Real-time Hint</div>
+        <div class="ai-hint" id="aiHint">
+          <div class="ai-hint-label">💡 AI Suggestion</div>
+          Start answering — AI will analyze your response and guide you in real-time.
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="sidebar-section-title">Question History</div>
+          <div id="questionHistory" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+  // =============================================
+  // Interview Engine
+  // =============================================
+  const QUESTIONS = {
+    technical: [
+      "Explain the difference between let, const, and var in JavaScript. When would you use each?",
+      "What is the time complexity of a binary search algorithm? Explain with an example.",
+      "Design a URL shortening service like Bit.ly. Walk me through your high-level architecture.",
+      "Explain how the event loop works in Node.js. What is the difference between the call stack and the callback queue?",
+      "You have an array of integers. Find all pairs that sum to a target value. Write your approach in pseudocode and analyze complexity.",
+      "What is the CAP theorem? How does it affect your database choice for a distributed system?",
+      "Explain the difference between SQL joins: INNER, LEFT, RIGHT, and FULL OUTER JOIN.",
+      "What are React hooks? Explain useState and useEffect with real-world use cases.",
+      "How would you implement rate limiting in an API? Discuss at least two strategies.",
+      "Describe a time you optimized a slow database query. What was your debugging approach?",
+      "What is a REST API? How does it differ from GraphQL?",
+      "Explain micro-frontends. When would you use this architecture over a monolith?",
+    ],
+    behavioral: [
+      "Tell me about a time you had to deal with a very difficult teammate. How did you handle it?",
+      "Describe a project where you had to learn a new technology under a tight deadline. What was your approach?",
+      "Give me an example of a time when you disagreed with your manager's decision. What did you do?",
+      "Tell me about your biggest professional failure. What did you learn from it?",
+      "Describe a situation where you had to prioritize competing deadlines. How did you decide what to tackle first?",
+      "Tell me about a time you mentored someone junior. What was your method?",
+      "Describe a situation where you had to influence without authority.",
+      "Give me an example of when you went above and beyond your job description.",
+    ],
+    hr: [
+      "Tell me about yourself. Walk me through your career journey.",
+      "Why are you leaving your current job?",
+      "Where do you see yourself in 5 years?",
+      "What is your expected salary range and why?",
+      "Why do you want to work at our company specifically?",
+      "How do you handle work-life balance during high-pressure sprints?",
+      "Describe your ideal work environment and management style.",
+      "What are your greatest strengths and weaknesses, and how are you working on the weakness?",
+    ],
+    stress: [
+      "You have 30 seconds. Explain machine learning to a 5-year-old. Go.",
+      "Your production database just went down at 3 AM. Walk me through your immediate next 15 actions.",
+      "I'm not convinced by your last answer. Convince me more specifically right now.",
+      "If you were CEO of this company for one day, what's the one thing you'd change and why?",
+      "Quick: name 5 ways to improve the performance of a slow React application. Don't think, just answer.",
+      "Your PR was just rejected by a senior engineer with harsh feedback. What do you do?",
+    ],
+    'system-design': [
+      "Design Twitter's trending topics system. How do you compute and update it in real-time at scale?",
+      "Design a distributed file storage system like Google Drive. Focus on consistency and availability tradeoffs.",
+      "How would you design a notification system that sends millions of push notifications per day?",
+      "Design YouTube's video upload and transcoding pipeline.",
+      "Design a real-time collaborative document editing system like Google Docs.",
+      "How would you design an e-commerce recommendation engine?",
+    ],
+    resume: [
+      "Walk me through the most technically challenging project on your resume.",
+      "In your last role, what were the top 3 technical decisions you made and what were their outcomes?",
+      "I see you worked on [Project]. What would you do differently now if you rebuilt it from scratch?",
+      "What metrics improved because of your work? Give me specific numbers.",
+      "Tell me about a production bug you caused and how you resolved it.",
+      "What's a feature you're most proud of shipping?",
+    ]
+  };
+
+  const AI_HINTS = [
+    "Be specific — mention exact numbers, technologies, or outcomes.",
+    "Use the STAR format: Situation, Task, Action, Result.",
+    "Don't just describe what happened — explain your thought process.",
+    "Quantify your impact. 'We improved performance by 40%' beats 'We made it faster'.",
+    "Pause and structure before speaking. A 2-second pause sounds confident, not uncertain.",
+    "Avoid passive voice — say 'I built', not 'it was built'.",
+    "Connect your answer back to what the company needs.",
+    "If you don't know, show your thinking — interviewers value reasoning over perfect answers.",
+  ];
+
+  // State
+  let config = JSON.parse(localStorage.getItem('interviewConfig') || '{}');
+  let mode = config.mode || (new URLSearchParams(location.search).get('mode')) || 'technical';
+  let numQ = config.numQ || 8;
+  let currentQ = 0;
+  let questions = [];
+  let answers = [];
+  let timerInterval;
+  let elapsed = 0;
+  let isRecording = false;
+  let recognition = null;
+  let currentTranscript = '';
+  let fillerCount = 0;
+
+  function init() {
+    // Set header info
+    const modeLabels = { technical:'Technical Interview', behavioral:'Behavioral Interview', hr:'HR Round', stress:'Stress Test', 'system-design':'System Design', resume:'Resume-Based' };
+    document.getElementById('modeLabel').textContent = modeLabels[mode] || mode;
+    document.getElementById('roleLabel').textContent = config.role || 'Software Engineer';
+    document.getElementById('qTypeBadge').textContent = modeLabels[mode] || mode;
+
+    // Prepare questions
+    const pool = QUESTIONS[mode] || QUESTIONS.technical;
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    questions = shuffled.slice(0, Math.min(numQ, shuffled.length));
+    numQ = questions.length;
+
+    // Build breadcrumb
+    buildBreadcrumb();
+
+    // Init speech recognition
+    initSpeech();
+
+    // Start timer
+    startTimer();
+
+    // Init filler timeline
+    buildFillerTimeline();
+
+    // Load first question
+    loadQuestion(0);
+
+    // Event listeners
+    document.getElementById('btnEnd').addEventListener('click', endSession);
+    document.getElementById('btnSkip').addEventListener('click', skipQuestion);
+
+    // Live telemetry from typing
+    document.getElementById('answerTextarea').addEventListener('input', updateTypingTelemetry);
+  }
+
+  function buildBreadcrumb() {
+    const c = document.getElementById('qBreadcrumb');
+    c.innerHTML = questions.map((_, i) => `<div class="q-dot ${i === 0 ? 'current' : ''}" id="qdot-${i}"></div>`).join('');
+  }
+
+  function buildFillerTimeline() {
+    const tl = document.getElementById('fillerTimeline');
+    tl.innerHTML = Array.from({length: 20}, (_, i) => `<div class="filler-blip" id="fblip-${i}"></div>`).join('');
+  }
+
+  function loadQuestion(idx) {
+    if (idx >= questions.length) { endSession(); return; }
+    currentQ = idx;
+    currentTranscript = '';
+    fillerCount = 0;
+
+    // Update UI
+    document.getElementById('qNumber').textContent = `Question ${idx + 1} of ${questions.length}`;
+    document.getElementById('questionText').textContent = questions[idx];
+    document.getElementById('answerTextarea').value = '';
+    document.getElementById('transcriptPreview').textContent = 'Press the microphone button to start speaking your answer';
+
+    // Update breadcrumb
+    document.querySelectorAll('.q-dot').forEach((d, i) => {
+      d.className = 'q-dot' + (i < idx ? ' answered' : i === idx ? ' current' : '');
+    });
+
+    // Rotate AI hint
+    document.getElementById('aiHint').innerHTML = `
+      <div class="ai-hint-label">💡 AI Suggestion</div>
+      ${AI_HINTS[idx % AI_HINTS.length]}
+    `;
+
+    // Reset telemetry
+    updateTelemetry(0);
+
+    // Update history
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const hist = document.getElementById('questionHistory');
+    hist.innerHTML = answers.slice(0, currentQ).reverse().slice(0, 3).map((a, i) => `
+      <div style="padding:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--text-2);">
+        <div style="color:var(--text-1);font-weight:600;margin-bottom:4px;">Q${questions.length - i}: ${questions[questions.length - 1 - i]?.substring(0, 40)}...</div>
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          <span style="background:rgba(16,185,129,0.1);color:var(--green);padding:2px 6px;border-radius:4px;font-size:0.7rem;">Answered</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function submitAnswer() {
+    const activeTab = document.getElementById('tabText').classList.contains('active') ? 'text' : 'voice';
+    let answer = activeTab === 'text' ? document.getElementById('answerTextarea').value.trim() : currentTranscript.trim();
+
+    if (!answer) { showToast('Please provide an answer before submitting.', 'warning'); return; }
+
+    // Analyze the answer
+    const analysis = analyzeAnswer(answer);
+    answers.push({ q: questions[currentQ], answer, ...analysis });
+
+    // Show feedback briefly
+    showAnswerFeedback(analysis);
+
+    setTimeout(() => {
+      if (currentQ + 1 >= questions.length) {
+        endSession();
+      } else {
+        loadQuestion(currentQ + 1);
+      }
+    }, 2000);
+  }
+
+  function skipQuestion() {
+    answers.push({ q: questions[currentQ], answer: '[Skipped]', score: 0, confidence: 0, fillerWords: 0 });
+    if (currentQ + 1 >= questions.length) endSession();
+    else loadQuestion(currentQ + 1);
+    showToast('Question skipped.', 'info');
+  }
+
+  function analyzeAnswer(text) {
+    const words = text.split(/\s+/).length;
+    const fillers = ['uh', 'um', 'like', 'you know', 'sort of', 'basically', 'kind of'];
+    let fillerCount = 0;
+    fillers.forEach(f => {
+      const matches = text.toLowerCase().match(new RegExp('\\b' + f + '\\b', 'g'));
+      if (matches) fillerCount += matches.length;
+    });
+
+    // Scoring heuristics
+    const lengthScore = Math.min(100, (words / 80) * 100);
+    const fillerPenalty = Math.min(30, fillerCount * 5);
+    const hasBullets = /\d+\.|•|-/.test(text) ? 10 : 0;
+    const hasActions = /(I built|I designed|I led|I implemented|I achieved|I improved)/.test(text) ? 10 : 0;
+    const confidence = Math.max(40, 90 - fillerPenalty + hasActions);
+    const score = Math.min(100, Math.round(lengthScore * 0.5 + confidence * 0.4 + hasBullets + hasActions));
+
+    return { score, confidence, fillerWords: fillerCount, wordCount: words };
+  }
+
+  function showAnswerFeedback(analysis) {
+    const quality = analysis.score >= 80 ? '✅ Great answer!' : analysis.score >= 60 ? '👍 Good attempt' : '⚠️ Try to elaborate more';
+    showToast(`${quality} Score: ${analysis.score}/100`, analysis.score >= 80 ? 'success' : 'info');
+    document.getElementById('aiHint').innerHTML = `
+      <div class="ai-hint-label">AI Feedback</div>
+      ${analysis.wordCount < 40 ? 'Your answer was too brief. Elaborate with specific examples. ' : ''}
+      ${analysis.fillerWords > 2 ? `${analysis.fillerWords} filler words detected. Aim to eliminate them. ` : ''}
+      ${analysis.score >= 80 ? 'Excellent structure and depth. Moving to next question.' : 'Consider adding specific metrics or outcomes next time.'}
+    `;
+  }
+
+  function endSession() {
+    clearInterval(timerInterval);
+
+    // Build results
+    const totalScore = answers.length > 0 ? Math.round(answers.reduce((s, a) => s + (a.score || 0), 0) / answers.length) : 0;
+    const avgConf = answers.length > 0 ? Math.round(answers.reduce((s, a) => s + (a.confidence || 0), 0) / answers.length) : 0;
+    const totalFillers = answers.reduce((s, a) => s + (a.fillerWords || 0), 0);
+
+    const report = {
+      mode, questions, answers, totalScore, avgConf, totalFillers,
+      duration: elapsed, date: new Date().toISOString(),
+    };
+    localStorage.setItem('lastReport', JSON.stringify(report));
+
+    // Update stats
+    const stats = JSON.parse(localStorage.getItem('interviewStats') || '{"totalSessions":0,"totalXP":0}');
+    stats.totalSessions = (stats.totalSessions || 0) + 1;
+    stats.totalXP = (stats.totalXP || 0) + Math.round(totalScore * 2 + 50);
+    localStorage.setItem('interviewStats', JSON.stringify(stats));
+
+    location.href = 'report.html';
+  }
+
+  // Timer
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      elapsed++;
+      const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      document.getElementById('sessionTimer').textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
+  // Tabs
+  function switchTab(tab) {
+    if (tab === 'text') {
+      document.getElementById('tabText').classList.add('active');
+      document.getElementById('tabVoice').classList.remove('active');
+      document.getElementById('answerArea').classList.remove('hidden');
+      document.getElementById('voiceUI').classList.remove('active');
+    } else {
+      document.getElementById('tabVoice').classList.add('active');
+      document.getElementById('tabText').classList.remove('active');
+      document.getElementById('answerArea').classList.add('hidden');
+      document.getElementById('voiceUI').classList.add('active');
+    }
+  }
+
+  // Voice
+  function initSpeech() {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) final += event.results[i][0].transcript;
+          else interim += event.results[i][0].transcript;
+        }
+        currentTranscript += final;
+        document.getElementById('transcriptPreview').textContent = currentTranscript + (interim ? ' ' + interim + '...' : '');
+
+        // Detect fillers
+        const fillers = ['uh', 'um', 'like', 'you know'];
+        fillers.forEach(f => {
+          if (final.toLowerCase().includes(f)) {
+            fillerCount++;
+            // Light up a blip
+            const blip = document.getElementById(`fblip-${Math.min(fillerCount - 1, 19)}`);
+            if (blip) blip.classList.add('hit');
+          }
+        });
+
+        document.getElementById('fillerVal').textContent = fillerCount + ' detected';
+        updateTelemetry(currentTranscript.split(/\s+/).length);
+      };
+
+      recognition.onerror = () => { stopRecording(); };
+    }
+  }
+
+  function toggleRecording() {
+    if (!recognition) { showToast('Voice input requires a Chromium-based browser.', 'warning'); return; }
+    if (isRecording) stopRecording();
+    else startRecording();
+  }
+
+  function startRecording() {
+    isRecording = true;
+    recognition.start();
+    document.getElementById('micButton').classList.add('recording');
+    document.getElementById('micIcon').setAttribute('data-lucide', 'square');
+    document.getElementById('transcriptPreview').textContent = 'Listening...';
+    lucide.createIcons();
+
+    // Animate waveform
+    document.querySelectorAll('.wave-bar').forEach((b, i) => {
+      b.style.animation = `wave ${0.8 + i * 0.1}s ease-in-out infinite alternate`;
+    });
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    if (recognition) recognition.stop();
+    document.getElementById('micButton').classList.remove('recording');
+    document.getElementById('micIcon').setAttribute('data-lucide', 'mic');
+    lucide.createIcons();
+    document.querySelectorAll('.wave-bar').forEach(b => { b.style.height = '8px'; b.style.animation = 'none'; });
+  }
+
+  // Telemetry from typing
+  function updateTypingTelemetry(e) {
+    const words = e.target.value.split(/\s+/).filter(w => w).length;
+    updateTelemetry(words);
+  }
+
+  function updateTelemetry(words) {
+    const lengthPercent = Math.min(100, (words / 80) * 100);
+    const lengthLabel = words < 20 ? 'Too Short' : words < 50 ? 'Good Length' : 'Excellent';
+    const lengthColor = words < 20 ? 'var(--yellow)' : 'var(--green)';
+
+    document.getElementById('lengthFill').style.width = lengthPercent + '%';
+    document.getElementById('lengthFill').style.background = lengthColor;
+    document.getElementById('lengthVal').textContent = lengthLabel;
+    document.getElementById('lengthVal').className = `tele-val ${words < 20 ? 'tele-warn' : 'tele-ok'}`;
+
+    // Update AI hint based on length
+    if (words > 0 && words < 25) {
+      document.getElementById('aiHint').innerHTML = `
+        <div class="ai-hint-label">💡 AI Suggestion</div>
+        Your answer is too brief. Aim for at least 60–80 words. Add specific examples, outcomes, or numbers.
+      `;
+    } else if (words >= 25 && words < 60) {
+      document.getElementById('aiHint').innerHTML = `
+        <div class="ai-hint-label">💡 AI Suggestion</div>
+        Good start! Now go deeper — explain the "why" behind your decisions and the impact of your actions.
+      `;
+    } else if (words >= 60) {
+      document.getElementById('aiHint').innerHTML = `
+        <div class="ai-hint-label">✅ AI Feedback</div>
+        Solid response length. Make sure you've quantified your impact and tied it back to the role requirements.
+      `;
+    }
+  }
+
+  // Toast
+  function showToast(msg, type = 'info') {
+    const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'alert-triangle' : 'info';
+    const color = type === 'success' ? 'var(--green)' : type === 'warning' ? 'var(--yellow)' : 'var(--primary)';
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.style.borderLeftColor = color;
+    t.innerHTML = `<i data-lucide="${icon}" style="color:${color}"></i><span>${msg}</span>`;
+    document.getElementById('toastStack').appendChild(t);
+    lucide.createIcons({ root: t });
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(120%)'; t.style.transition = 'all 0.3s ease'; setTimeout(() => t.remove(), 300); }, 3500);
+  }
+
+  lucide.createIcons();
+  init();
+</script>
+</body>
+</html>

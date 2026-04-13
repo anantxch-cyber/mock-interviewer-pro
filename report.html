@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Report — InterviewAI Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="ambient-bg">
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+</div>
+
+<nav class="nav nav-scrolled">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon"><i data-lucide="brain-circuit"></i></div>
+      <span>InterviewAI</span>
+    </a>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="location.href='dashboard.html'">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </button>
+      <button class="btn btn-primary glow" onclick="location.href='setup.html'">
+        Practice Again →
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="report-page">
+  <div id="reportContent">Loading your results...</div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+  lucide.createIcons();
+
+  const DEFAULT_REPORT = {
+    mode: 'technical',
+    totalScore: 76,
+    avgConf: 79,
+    totalFillers: 5,
+    duration: 1230,
+    date: new Date().toISOString(),
+    questions: [
+      "Explain the difference between let, const, and var in JavaScript.",
+      "What is the time complexity of binary search? Explain with an example.",
+      "Design a URL shortening service like Bit.ly.",
+    ],
+    answers: [
+      { score: 82, confidence: 85, fillerWords: 1, wordCount: 72 },
+      { score: 74, confidence: 78, fillerWords: 2, wordCount: 55 },
+      { score: 71, confidence: 74, fillerWords: 2, wordCount: 48 },
+    ]
+  };
+
+  const report = JSON.parse(localStorage.getItem('lastReport') || JSON.stringify(DEFAULT_REPORT));
+  const score = report.totalScore || 76;
+  const conf = report.avgConf || 79;
+  const fillers = report.totalFillers || 0;
+  const durationMin = Math.round((report.duration || 0) / 60);
+  const modeLabel = ({technical:'Technical', behavioral:'Behavioral', hr:'HR Round', stress:'Stress Test', 'system-design':'System Design', resume:'Resume-Based'})[report.mode] || report.mode;
+
+  const hiringPct = score >= 85 ? 92 : score >= 70 ? 72 : score >= 55 ? 42 : 18;
+  const hireClass = hiringPct >= 70 ? 'hire-yes' : hiringPct >= 45 ? 'hire-maybe' : 'hire-no';
+  const hireLabel = hiringPct >= 70 ? '✅ Strong Hire' : hiringPct >= 45 ? '🟡 Borderline' : '❌ Not Yet';
+
+  const SAMPLE_ANSWERS = {
+    technical: [
+      `"var is function-scoped and hoisted, meaning it can be accessed before declaration (as undefined). let and const are block-scoped and not hoisted in the same way — accessing them before declaration throws a ReferenceError. I use const by default for any value that won't be reassigned, let for values that change within a block, and avoid var entirely in modern JavaScript due to its unpredictable scoping behavior."`,
+      `"Binary search runs in O(log n) time because it eliminates half of the search space with each comparison. For an array of 1 million items, it takes at most 20 comparisons — log₂(1,000,000) ≈ 20. The key requirement is that the array must be sorted."`,
+    ],
+    behavioral: [
+      `"Using the STAR method: The Situation was our product launch deadline was 2 weeks away when a key engineer resigned. My Task was to ensure delivery without compromising quality. My Action involved re-estimating scope, negotiating a 1-week extension, redistributing tasks, and pair-programming with a junior developer for critical components. The Result: we launched 7 days late but with zero critical bugs, and the junior developer grew significantly."`,
+    ],
+    hr: [
+      `"I'm looking for a base in the range of ₹18–22 LPA based on my 4 years of full-stack experience, my track record of delivering high-impact features, and current market benchmarks for this role. I'm open to discussing the total compensation package including equity and benefits."`,
+    ]
+  };
+
+  const modelAnswers = SAMPLE_ANSWERS[report.mode] || SAMPLE_ANSWERS.technical;
+
+  const circumference = 2 * Math.PI * 54;
+  const offset = circumference - (score / 100) * circumference;
+
+  document.getElementById('reportContent').innerHTML = `
+    <!-- Header -->
+    <div class="report-header">
+      <div class="report-header-left">
+        <h1>Interview Report</h1>
+        <p>${modeLabel} · ${durationMin} min · ${new Date(report.date).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</p>
+      </div>
+      <div class="report-hire-pill ${hireClass}">
+        <span class="hire-prob">${hiringPct}%</span>
+        ${hireLabel}
+      </div>
+    </div>
+
+    <!-- Scores -->
+    <div class="report-grid mb-4">
+      <div class="card score-ring-wrap">
+        <div class="card-header"><span class="card-title">Overall Score</span></div>
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="54" fill="none" stroke="var(--bg-hover)" stroke-width="10"/>
+          <circle cx="65" cy="65" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+            style="transition: stroke-dashoffset 1.4s ease;"/>
+          <defs>
+            <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#6366f1"/>
+              <stop offset="1" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="score-ring-text">
+          <div class="big-num">${score}</div>
+          <div class="big-label">out of 100</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Personality Matrix</span></div>
+        <div class="personality-grid">
+          ${[
+            ['Confidence', conf >= 80 ? '🔥 High' : conf >= 60 ? '⚡ Medium' : '⚠️ Low', conf >= 80 ? 'var(--green)' : conf >= 60 ? 'var(--yellow)' : 'var(--red)'],
+            ['Communication', score >= 75 ? '✅ Clear' : '⚠️ Needs Work', score >= 75 ? 'var(--green)' : 'var(--yellow)'],
+            ['Problem Solving', score >= 70 ? '🧠 Analytical' : '📚 Developing', 'var(--primary)'],
+            ['Stress Handling', fillers <= 3 ? '🧘 Stable' : '😰 Anxious', fillers <= 3 ? 'var(--green)' : 'var(--yellow)'],
+            ['Leadership', score >= 80 ? '👑 Strong' : score >= 60 ? '📈 Growing' : '🌱 Emerging', 'var(--blue)'],
+            ['Professionalism', '✅ High', 'var(--green)'],
+          ].map(([l,v,c]) => `
+            <div class="pers-item">
+              <div class="pers-label">${l}</div>
+              <div class="pers-val" style="color:${c}">${v}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Strengths & Weaknesses -->
+    <div class="report-grid mb-4">
+      <div class="card">
+        <div class="card-header"><span class="card-title">✅ Strengths</span></div>
+        <ul class="strengths-list">
+          ${score >= 75 ? '<li>Strong technical depth with structured answers.</li>' : ''}
+          ${conf >= 75 ? '<li>Confident delivery — language was clear and assertive.</li>' : ''}
+          ${fillers <= 3 ? '<li>Minimal filler words — you sound polished and prepared.</li>' : ''}
+          ${report.answers?.some(a => a.wordCount > 60) ? '<li>Detailed answers with sufficient depth and examples.</li>' : ''}
+          <li>Consistent performance across all question types.</li>
+          <li>Good listening and comprehension of complex prompts.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">⚠️ Improvement Areas</span></div>
+        <ul class="improvements-list">
+          ${fillers > 3 ? `<li>Detected ${fillers} filler words (um, uh, like). Practice pausing instead.</li>` : ''}
+          ${score < 75 ? '<li>Answers lacked specific quantified outcomes (numbers, %).</li>' : ''}
+          ${report.answers?.some(a => a.wordCount < 40) ? '<li>Some answers were too brief. Aim for 60–100 words minimum.</li>' : ''}
+          <li>Connect responses more explicitly to the target role's requirements.</li>
+          <li>Use more action verbs: "I led", "I built", "I improved" — avoid passive voice.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Per-question feedback -->
+    <div class="card mb-4">
+      <div class="card-header"><span class="card-title">Question-by-Question Analysis</span></div>
+      <div class="q-feedback-list">
+        ${(report.questions || []).slice(0, 5).map((q, i) => {
+          const a = (report.answers || [])[i] || { score: 0, confidence: 0, fillerWords: 0 };
+          const s = a.score || 0;
+          const c = s >= 80 ? 'var(--green)' : s >= 60 ? 'var(--yellow)' : 'var(--red)';
+          const model = modelAnswers[i % modelAnswers.length];
+          return `
+            <div class="q-feedback-item">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+                <h4>Q${i+1}: ${q}</h4>
+                <div style="font-size:1.4rem;font-weight:800;color:${c};flex-shrink:0;">${s}</div>
+              </div>
+              <div class="q-feedback-meta">
+                <span class="session-badge" style="background:${s>=80?'rgba(16,185,129,0.1)':s>=60?'rgba(245,158,11,0.1)':'rgba(239,68,68,0.1)'};color:${c};">
+                  ${s >= 80 ? '✅ Strong' : s >= 60 ? '👍 Good' : '⚠️ Needs Work'}
+                </span>
+                <span style="font-size:0.78rem;color:var(--text-3);">Confidence: ${a.confidence || '—'}% · Filler words: ${a.fillerWords || 0}</span>
+              </div>
+              <div class="answer-sample-label">💡 Model Answer</div>
+              <div class="answer-sample">${model || 'Keep your answer structured: define the concept, give a real example, then mention edge cases or tradeoffs.'}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Improvement Roadmap -->
+    <div class="card mb-4">
+      <div class="card-header"><span class="card-title">🗺️ Your Personalized Roadmap</span></div>
+      <div class="roadmap-list">
+        <div class="roadmap-item">
+          <div class="roadmap-line"></div>
+          <div class="roadmap-step week1">W1</div>
+          <div class="roadmap-content">
+            <h4>Foundation & Filler Word Elimination</h4>
+            <p>Record yourself answering 3 questions daily. Listen back and count filler words. Replace them with deliberate pauses. Practice the STAR framework on every behavioral question.</p>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"></div>
+          <div class="roadmap-step week2">W2</div>
+          <div class="roadmap-content">
+            <h4>Depth & Quantification</h4>
+            <p>For every answer you practice, add at least one metric: "improved by X%", "reduced latency by Xms", "handled X users". Review the model answers above and mirror their structure.</p>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-step week3">W3</div>
+          <div class="roadmap-content">
+            <h4>Mock Sessions & Pressure Testing</h4>
+            <p>Take 3 full stress-test sessions. Focus on maintaining composure and structure when interrupted. Your target: 85+ score before your real interview.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="card" style="text-align:center;padding:48px;background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(168,85,247,0.1));border-color:rgba(99,102,241,0.2);">
+      <div style="font-size:2rem;margin-bottom:12px;">🚀</div>
+      <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:12px;letter-spacing:-0.03em;">Ready for round two?</h2>
+      <p style="color:var(--text-2);margin-bottom:24px;">Each session builds your score. You're <strong style="color:var(--primary);">${100 - score} points</strong> away from a "Strong Hire" rating.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary glow btn-xl" onclick="location.href='setup.html'">Start New Session →</button>
+        <button class="btn btn-outline btn-xl" onclick="location.href='dashboard.html'">View Dashboard</button>
+      </div>
+    </div>
+  `;
+
+  lucide.createIcons();
+</script>
+</body>
+</html>

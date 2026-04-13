@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — InterviewAI Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="index.html">
+        <div class="brand-icon"><i data-lucide="brain-circuit"></i></div>
+        <span>InterviewAI</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <span class="sidebar-section-label">Main</span>
+        <button class="sidebar-item active" onclick="location.href='dashboard.html'">
+          <i data-lucide="layout-dashboard"></i> Dashboard
+        </button>
+        <button class="sidebar-item" onclick="location.href='setup.html'">
+          <i data-lucide="play-circle"></i> New Interview
+        </button>
+        <button class="sidebar-item" onclick="location.href='report.html'">
+          <i data-lucide="file-bar-chart"></i> Reports
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <span class="sidebar-section-label">Modes</span>
+        <button class="sidebar-item" onclick="location.href='setup.html?mode=technical'">
+          <i data-lucide="code-2"></i> Technical
+        </button>
+        <button class="sidebar-item" onclick="location.href='setup.html?mode=behavioral'">
+          <i data-lucide="message-circle"></i> Behavioral
+        </button>
+        <button class="sidebar-item" onclick="location.href='setup.html?mode=hr'">
+          <i data-lucide="users"></i> HR Round
+        </button>
+        <button class="sidebar-item" onclick="location.href='setup.html?mode=stress'">
+          <i data-lucide="zap"></i> Stress Test
+          <span class="sidebar-badge">HOT</span>
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <span class="sidebar-section-label">Profile</span>
+        <button class="sidebar-item" >
+          <i data-lucide="trophy"></i> Achievements
+        </button>
+        <button class="sidebar-item">
+          <i data-lucide="settings"></i> Settings
+        </button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-head">
+          <span class="xp-label">⚡ Level 7 — Pro</span>
+          <span class="xp-pts" id="xpDisplay">1,820 XP</span>
+        </div>
+        <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:64%"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <button class="btn btn-primary glow" onclick="location.href='setup.html'" style="padding:8px 18px;font-size:0.85rem;">
+          <i data-lucide="plus"></i> Start Interview
+        </button>
+        <div class="user-avatar" title="Profile">A</div>
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <!-- Dashboard Content injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="js/store.js" type="module"></script>
+<script type="module">
+  import { AppStore } from './js/store.js';
+
+  function renderDashboard() {
+    const stats = AppStore.getStats();
+    const sessions = AppStore.getSessions();
+    const user = AppStore.getUser();
+
+    document.getElementById('xpDisplay').textContent = user.xp.toLocaleString() + ' XP';
+    const xpPercent = ((user.xp % 500) / 500) * 100;
+    document.getElementById('xpFill').style.width = xpPercent + '%';
+
+    document.getElementById('contentArea').innerHTML = `
+      <div class="dashboard-header">
+        <h1>Welcome back, ${user.name}!
+          <span class="readiness-pill"><i data-lucide="trending-up" style="width:12px;height:12px"></i> ${stats.readiness}% Ready</span>
+        </h1>
+        <p>You've completed <strong>${stats.totalSessions}</strong> sessions this month. You're on a <strong>🔥 ${user.streak}-day streak!</strong></p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-head">
+            <span class="stat-card-label">Overall Score</span>
+            <div class="stat-card-icon icon-purple"><i data-lucide="activity"></i></div>
+          </div>
+          <div class="stat-card-val">${stats.avgScore}<span style="font-size:1rem;color:var(--text-3)">/100</span></div>
+          <div class="stat-card-sub trend-up"><i data-lucide="trending-up" style="width:14px;height:14px"></i> +8 from last week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-head">
+            <span class="stat-card-label">Confidence</span>
+            <div class="stat-card-icon icon-blue"><i data-lucide="shield"></i></div>
+          </div>
+          <div class="stat-card-val">${stats.confidence}%</div>
+          <div class="stat-card-sub trend-up"><i data-lucide="trending-up" style="width:14px;height:14px"></i> Growing steadily</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-head">
+            <span class="stat-card-label">Sessions Done</span>
+            <div class="stat-card-icon icon-green"><i data-lucide="check-circle"></i></div>
+          </div>
+          <div class="stat-card-val">${stats.totalSessions}</div>
+          <div class="stat-card-sub text-muted">This month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-head">
+            <span class="stat-card-label">Hiring Chance</span>
+            <div class="stat-card-icon icon-pink"><i data-lucide="target"></i></div>
+          </div>
+          <div class="stat-card-val">${stats.hiringChance}%</div>
+          <div class="stat-card-sub trend-up"><i data-lucide="trending-up" style="width:14px;height:14px"></i> +12% this month</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-grid-left">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Sessions</span>
+              <a href="report.html" class="card-action">View All →</a>
+            </div>
+            <div class="session-list">
+              ${sessions.slice(0,4).map(s => `
+                <a href="report.html" class="session-item">
+                  <div class="session-icon" style="background:${s.iconBg}; color:${s.iconColor}">
+                    <i data-lucide="${s.icon}"></i>
+                  </div>
+                  <div class="session-info">
+                    <div class="session-title">${s.title}</div>
+                    <div class="session-meta">
+                      <span class="session-badge badge-${s.type.toLowerCase()}">${s.type}</span>
+                      <span>${s.date}</span>
+                    </div>
+                  </div>
+                  <div class="session-score">
+                    <div class="score-val" style="color:${s.score >= 80 ? 'var(--green)' : s.score >=60 ? 'var(--yellow)' : 'var(--red)'}">${s.score}</div>
+                    <div class="score-label">Score</div>
+                  </div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Skill Breakdown</span>
+            </div>
+            <div class="skill-bars">
+              ${[
+                {name:'Technical Knowledge', score:86, color:'var(--primary)'},
+                {name:'Communication Clarity', score:74, color:'var(--blue)'},
+                {name:'Problem Solving', score:91, color:'var(--green)'},
+                {name:'Behavioral Depth', score:68, color:'var(--yellow)'},
+                {name:'Confidence Under Pressure', score:79, color:'var(--pink)'},
+              ].map(s => `
+                <div class="skill-bar-item">
+                  <div class="skill-bar-head">
+                    <span class="skill-bar-name">${s.name}</span>
+                    <span class="skill-bar-score">${s.score}%</span>
+                  </div>
+                  <div class="skill-track"><div class="skill-fill" style="width:${s.score}%; background:${s.color};"></div></div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid-right" style="display:flex;flex-direction:column;gap:20px;">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Quick Start</span></div>
+            <div class="quick-actions">
+              ${[
+                {icon:'code-2', label:'Technical Interview', href:'setup.html?mode=technical'},
+                {icon:'message-circle', label:'Behavioral Round', href:'setup.html?mode=behavioral'},
+                {icon:'zap', label:'Stress Test', href:'setup.html?mode=stress'},
+                {icon:'file-text', label:'Resume-Based Questions', href:'setup.html?mode=resume'},
+              ].map(a => `
+                <button class="quick-action-btn" onclick="location.href='${a.href}'">
+                  <i data-lucide="${a.icon}"></i> ${a.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Achievements 🏆</span></div>
+            <div class="badges-grid">
+              ${[
+                {icon:'🔥', name:'7-Day Streak'},
+                {icon:'⭐', name:'Top 10%'},
+                {icon:'💪', name:'Stress Master'},
+                {icon:'🎯', name:'90+ Score'},
+                {icon:'🚀', name:'First Session'},
+                {icon:'🤝', name:'Team Player'},
+              ].map(b => `
+                <div class="badge-item">
+                  <div class="badge-icon">${b.icon}</div>
+                  <div class="badge-name">${b.name}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    lucide.createIcons();
+  }
+
+  renderDashboard();
+</script>
+</body>
+</html>

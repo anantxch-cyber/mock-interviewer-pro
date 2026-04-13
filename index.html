@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewAI Pro — The Future of Interview Preparation</title>
+  <meta name="description" content="Master interviews with AI-powered simulations, deep personality analysis, and real-time coaching.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <!-- Ambient Background -->
+  <div class="ambient-bg">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon"><i data-lucide="brain-circuit"></i></div>
+        <span>InterviewAI</span>
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="interview.html?mode=technical" class="nav-link">Practice</a>
+        <a href="report.html" class="nav-link">Reports</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-ghost" onclick="location.href='dashboard.html'">Sign In</button>
+        <button class="btn btn-primary glow" onclick="location.href='setup.html'">Start Free →</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <i data-lucide="sparkles"></i>
+      <span>Powered by Next-Gen AI</span>
+    </div>
+    <h1 class="hero-title">
+      The Last Interview Prep<br>
+      <span class="gradient-text">You'll Ever Need</span>
+    </h1>
+    <p class="hero-subtitle">
+      Practice with an AI that thinks like a senior hiring manager. Get real-time personality analysis,
+      deep feedback, and a personalized improvement roadmap — all in one premium platform.
+    </p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-xl glow" onclick="location.href='setup.html'">
+        <i data-lucide="play-circle"></i> Start Mock Interview
+      </button>
+      <button class="btn btn-outline btn-xl" onclick="location.href='dashboard.html'">
+        <i data-lucide="layout-dashboard"></i> View Dashboard
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-num">98%</span><span class="stat-label">Accuracy Rate</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num">50+</span><span class="stat-label">Interview Modes</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num">10K+</span><span class="stat-label">Candidates Hired</span></div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="features">
+    <div class="section-header">
+      <h2>Everything you need to <span class="gradient-text">get hired</span></h2>
+      <p>Built by engineers who've sat on both sides of the interview table.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card feature-card-large">
+        <div class="feature-icon icon-purple"><i data-lucide="brain"></i></div>
+        <h3>Deep Personality Analysis</h3>
+        <p>AI analyzes your confidence, leadership signals, emotional stability, intro/extrovert indicators, and growth mindset in real-time.</p>
+        <div class="feature-tags">
+          <span class="tag">Confidence Score</span>
+          <span class="tag">Hiring Probability</span>
+          <span class="tag">Roadmap</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-blue"><i data-lucide="mic"></i></div>
+        <h3>Voice-Powered Sessions</h3>
+        <p>Speak your answers naturally. AI detects filler words, pacing, and hesitation in real-time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-green"><i data-lucide="layers"></i></div>
+        <h3>8+ Interview Modes</h3>
+        <p>HR, Technical, Behavioral, Stress Tests, Group Discussion, Fresher & Experienced modes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-orange"><i data-lucide="file-text"></i></div>
+        <h3>Resume Intelligence</h3>
+        <p>Upload your resume. AI extracts your projects and fires custom questions at you.</p>
+      </div>
+      <div class="feature-card feature-card-large">
+        <div class="feature-icon icon-pink"><i data-lucide="trophy"></i></div>
+        <h3>Gamified Learning</h3>
+        <p>Climb XP levels, earn badges, maintain streaks, and compete on daily challenges.</p>
+        <div class="feature-tags">
+          <span class="tag">🔥 Streaks</span>
+          <span class="tag">⭐ XP System</span>
+          <span class="tag">🏆 Badges</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interview Mode Selector Preview -->
+  <section class="modes-section">
+    <div class="section-header">
+      <h2>Pick Your <span class="gradient-text">Battle Mode</span></h2>
+    </div>
+    <div class="modes-grid">
+      <div class="mode-card" onclick="location.href='setup.html?mode=technical'">
+        <div class="mode-icon" style="background:rgba(99,102,241,0.15); color:#6366f1"><i data-lucide="code-2"></i></div>
+        <div>
+          <h4>Technical</h4>
+          <p>DS&A, System Design, Debugging</p>
+        </div>
+        <i data-lucide="arrow-right" class="mode-arrow"></i>
+      </div>
+      <div class="mode-card" onclick="location.href='setup.html?mode=hr'">
+        <div class="mode-icon" style="background:rgba(16,185,129,0.15); color:#10b981"><i data-lucide="users"></i></div>
+        <div><h4>HR Round</h4><p>Salary, culture fit, motivations</p></div>
+        <i data-lucide="arrow-right" class="mode-arrow"></i>
+      </div>
+      <div class="mode-card" onclick="location.href='setup.html?mode=behavioral'">
+        <div class="mode-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b"><i data-lucide="message-circle"></i></div>
+        <div><h4>Behavioral</h4><p>STAR method, leadership stories</p></div>
+        <i data-lucide="arrow-right" class="mode-arrow"></i>
+      </div>
+      <div class="mode-card" onclick="location.href='setup.html?mode=stress'">
+        <div class="mode-icon" style="background:rgba(239,68,68,0.15); color:#ef4444"><i data-lucide="zap"></i></div>
+        <div><h4>Stress Test</h4><p>High pressure, rapid fire, interruptions</p></div>
+        <i data-lucide="arrow-right" class="mode-arrow"></i>
+      </div>
+      <div class="mode-card" onclick="location.href='setup.html?mode=system-design'">
+        <div class="mode-icon" style="background:rgba(168,85,247,0.15); color:#a855f7"><i data-lucide="network"></i></div>
+        <div><h4>System Design</h4><p>Architecture, scalability, tradeoffs</p></div>
+        <i data-lucide="arrow-right" class="mode-arrow"></i>
+      </div>
+      <div class="mode-card" onclick="location.href='setup.html?mode=dsa'">
+        <div class="mode-icon" style="background:rgba(6,182,212,0.15); color:#06b6d4"><i data-lucide="terminal"></i></div>
+        <div><h4>DSA Deep Dive</h4><p>LeetCode-style, explain your approach</p></div>
+        <i data-lucide="arrow-right" class="mode-arrow"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="brand-icon"><i data-lucide="brain-circuit"></i></div>
+    <p>InterviewAI Pro — Built for the ambitious.</p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    // Nav scroll effect
+    window.addEventListener('scroll', () => {
+      document.getElementById('mainNav').classList.toggle('nav-scrolled', window.scrollY > 20);
+    });
+  </script>
+</body>
+</html>
