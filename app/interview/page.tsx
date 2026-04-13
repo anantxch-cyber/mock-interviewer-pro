@@ -1,4 +1,4 @@
-import { Mic, Brain, User, Activity, BrainCircuit, Waves } from "lucide-react"
+import { Mic, Brain, User, Activity, BrainCircuit, Video, Clock, CheckCircle } from "lucide-react"
 
 export default function InterviewSession() {
   return (
