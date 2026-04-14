@@ -1,87 +1,135 @@
-import { Briefcase, Activity, Target, Zap, Shield, ChevronRight } from 'lucide-react'
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  BrainCircuit, Sparkles, PlayCircle, LayoutDashboard, Code2, Users,
+  MessageCircle, Zap, Network, Terminal, FileText, ArrowRight, Trophy, Mic, Layers
+} from 'lucide-react';
 
-export default function Dashboard() {
+const MODES = [
+  { mode: 'technical', Icon: Code2, title: 'Technical', desc: 'DS&A, System Design, Coding concepts', bg: 'rgba(99,102,241,0.15)', color: '#6366f1' },
+  { mode: 'hr', Icon: Users, title: 'HR Round', desc: 'Culture fit, salary, motivations', bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
+  { mode: 'behavioral', Icon: MessageCircle, title: 'Behavioral', desc: 'STAR stories, leadership, teamwork', bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
+  { mode: 'stress', Icon: Zap, title: 'Stress Test', desc: 'Rapid fire, pressure, interruptions', bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
+  { mode: 'system-design', Icon: Network, title: 'System Design', desc: 'Architecture, scalability, tradeoffs', bg: 'rgba(168,85,247,0.15)', color: '#a855f7' },
+  { mode: 'dsa', Icon: Terminal, title: 'DSA Deep Dive', desc: 'LeetCode-style, explain your thinking', bg: 'rgba(6,182,212,0.15)', color: '#06b6d4' },
+];
+
+export default function LandingPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const nav = document.getElementById('mainNav');
+    const handleScroll = () => nav?.classList.toggle('nav-scrolled', window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <div className="space-y-12 animate-fade-in">
-      {/* Header Section */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-2">
-            Welcome back, Sarah.
-          </h1>
-          <p className="text-textMuted text-lg">Your interview readiness is at <span className="text-primary font-semibold">84%</span>. You are improving!</p>
-        </div>
-        <button className="flex items-center gap-2 bg-primary hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)]">
-          <Zap className="w-4 h-4 fill-current" />
-          Start Mock Interview
-        </button>
+    <>
+      {/* Ambient Background */}
+      <div className="ambient-bg">
+        <div className="ambient-orb orb-1" />
+        <div className="ambient-orb orb-2" />
+        <div className="ambient-orb orb-3" />
       </div>
 
-      {/* Grid Status */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6">
-          <div className="flex items-center gap-4 mb-4 text-textMuted">
-            <Activity className="w-5 h-5 text-indigo-400" />
-            <span className="font-medium tracking-wide text-sm uppercase">Overall Score</span>
+      {/* Nav */}
+      <nav className="nav" id="mainNav">
+        <div className="nav-inner">
+          <Link href="/" className="nav-brand">
+            <div className="brand-icon"><BrainCircuit size={18} /></div>
+            <span>InterviewAI</span>
+          </Link>
+          <div className="nav-links">
+            <Link href="/dashboard" className="nav-link">Dashboard</Link>
+            <Link href="/setup?mode=technical" className="nav-link">Practice</Link>
+            <Link href="/report" className="nav-link">Reports</Link>
           </div>
-          <div className="text-5xl font-light tracking-tight">84<span className="text-xl text-textMuted ml-1">/100</span></div>
-          <div className="mt-4 pt-4 border-t border-borderBase text-sm text-green-400 flex items-center gap-2">
-            ↑ 12% from last week
-          </div>
-        </div>
-
-        <div className="glass-card p-6">
-          <div className="flex items-center gap-4 mb-4 text-textMuted">
-            <Shield className="w-5 h-5 text-purple-400" />
-            <span className="font-medium tracking-wide text-sm uppercase">Confidence</span>
-          </div>
-          <div className="text-5xl font-light tracking-tight">High</div>
-          <div className="mt-4 pt-4 border-t border-borderBase text-sm text-textMuted flex items-center gap-2">
-            Eye contact improved by 15%
+          <div className="nav-actions">
+            <button className="btn btn-ghost" onClick={() => router.push('/dashboard')}>Sign In</button>
+            <button className="btn btn-primary glow" onClick={() => router.push('/setup')}>Start Free →</button>
           </div>
         </div>
+      </nav>
 
-        <div className="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden group cursor-pointer border-dashed border-2 bg-transparent hover:bg-surface/40">
-          <div className="absolute inset-0 bg-gradient-premium opacity-0 group-hover:opacity-5 transition-opacity" />
-          <Target className="w-8 h-8 text-primary mb-3" />
-          <h3 className="font-medium text-lg">Upload Target Resume</h3>
-          <p className="text-sm text-textMuted mt-1">Let AI extract customized questions.</p>
+      {/* Hero */}
+      <section className="hero">
+        <div className="hero-badge">
+          <Sparkles size={14} />
+          <span>Powered by Next-Gen AI</span>
         </div>
-      </div>
+        <h1 className="hero-title">
+          The Last Interview Prep<br />
+          <span className="gradient-text">You'll Ever Need</span>
+        </h1>
+        <p className="hero-subtitle">
+          Practice with an AI that thinks like a senior hiring manager. Get real-time personality analysis,
+          deep feedback, and a personalized improvement roadmap — all in one premium platform.
+        </p>
+        <div className="hero-cta">
+          <button className="btn btn-primary btn-xl glow" onClick={() => router.push('/setup')}>
+            <PlayCircle size={18} /> Start Mock Interview
+          </button>
+          <button className="btn btn-outline btn-xl" onClick={() => router.push('/dashboard')}>
+            <LayoutDashboard size={18} /> View Dashboard
+          </button>
+        </div>
+        <div className="hero-stats">
+          <div className="stat-item"><span className="stat-num">98%</span><span className="stat-label">Accuracy Rate</span></div>
+          <div className="stat-divider" />
+          <div className="stat-item"><span className="stat-num">50+</span><span className="stat-label">Interview Modes</span></div>
+          <div className="stat-divider" />
+          <div className="stat-item"><span className="stat-num">10K+</span><span className="stat-label">Candidates Hired</span></div>
+        </div>
+      </section>
 
-      {/* Recent Interviews */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-6">Recent Sessions</h2>
-        <div className="space-y-4">
+      {/* Features */}
+      <section className="features">
+        <div className="section-header">
+          <h2>Everything you need to <span className="gradient-text">get hired</span></h2>
+          <p>Built by engineers who've sat on both sides of the interview table.</p>
+        </div>
+        <div className="features-grid">
           {[
-            { role: "Senior Frontend Engineer", type: "Technical", score: 88, date: "Today, 10:00 AM", icon: <Briefcase /> },
-            { role: "Product Manager", type: "Behavioral", score: 76, date: "Yesterday", icon: <Target /> },
-            { role: "Google DNA Check", type: "Stress", score: 92, date: "Oct 12", icon: <Zap /> },
-          ].map((session, i) => (
-            <div key={i} className="glass-card p-5 flex items-center justify-between group cursor-pointer">
-              <div className="flex items-center gap-5">
-                <div className="w-12 h-12 rounded-xl bg-surfaceHover flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                  {session.icon}
-                </div>
-                <div>
-                  <h4 className="font-medium text-lg">{session.role}</h4>
-                  <p className="text-sm text-textMuted flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded bg-surface border border-borderBase text-xs">{session.type}</span>
-                    {session.date}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-6">
-                <div className="text-right flex flex-col">
-                  <span className="text-2xl font-semibold">{session.score}</span>
-                  <span className="text-xs text-textMuted uppercase tracking-wider">Score</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-              </div>
+            { Icon: BrainCircuit, title: 'Deep Personality Analysis', desc: 'AI analyzes confidence, leadership, emotional stability, and growth mindset in real-time.', tags: ['Confidence Score', 'Hiring Probability', 'Roadmap'], large: true, iconClass: 'icon-purple' },
+            { Icon: Mic, title: 'Voice-Powered Sessions', desc: 'Speak your answers naturally. AI detects filler words, pacing, and hesitation.', tags: [], large: false, iconClass: 'icon-blue' },
+            { Icon: Layers, title: '8+ Interview Modes', desc: 'HR, Technical, Behavioral, Stress Tests, Group Discussion, Fresher & Experienced modes.', tags: [], large: false, iconClass: 'icon-green' },
+            { Icon: FileText, title: 'Resume Intelligence', desc: 'Upload your resume. AI extracts your projects and fires custom questions at you.', tags: [], large: false, iconClass: 'icon-orange' },
+            { Icon: Trophy, title: 'Gamified Learning', desc: 'Climb XP levels, earn badges, maintain streaks, and compete on daily challenges.', tags: ['🔥 Streaks', '⭐ XP System', '🏆 Badges'], large: true, iconClass: 'icon-pink' },
+          ].map(({ Icon, title, desc, tags, large, iconClass }) => (
+            <div key={title} className={`feature-card${large ? ' feature-card-large' : ''}`} onClick={() => router.push('/setup')}>
+              <div className={`feature-icon ${iconClass}`}><Icon size={22} /></div>
+              <h3>{title}</h3>
+              <p>{desc}</p>
+              {tags.length > 0 && <div className="feature-tags">{tags.map(t => <span key={t} className="tag">{t}</span>)}</div>}
             </div>
           ))}
         </div>
-      </div>
-    </div>
-  )
+      </section>
+
+      {/* Mode Selector */}
+      <section className="modes-section">
+        <div className="section-header">
+          <h2>Pick Your <span className="gradient-text">Battle Mode</span></h2>
+        </div>
+        <div className="modes-grid">
+          {MODES.map(({ mode, Icon, title, desc, bg, color }) => (
+            <div key={mode} className="mode-card" onClick={() => router.push(`/setup?mode=${mode}`)}>
+              <div className="mode-icon" style={{ background: bg, color }}><Icon size={20} /></div>
+              <div><h4>{title}</h4><p>{desc}</p></div>
+              <ArrowRight size={16} className="mode-arrow" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="brand-icon"><BrainCircuit size={18} /></div>
+        <p>InterviewAI Pro — Built for the ambitious.</p>
+      </footer>
+    </>
+  );
 }
