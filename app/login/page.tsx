@@ -30,6 +30,18 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Show error toast if redirected back from failed OAuth
+  const error = searchParams.get('error');
+  if (error && typeof window !== 'undefined') {
+    setTimeout(() => {
+      if (error === 'oauth_failed') toast.error('Google sign-in failed. Please try again.');
+      else if (error === 'no_code') toast.error('Authentication code missing. Try again.');
+      else toast.error('Sign-in failed. Please try again.');
+      // Clean URL
+      window.history.replaceState({}, '', '/login');
+    }, 100);
+  }
+
   const validate = (): boolean => {
     const result = loginSchema.safeParse(form);
     if (result.success) { setErrors({}); return true; }
