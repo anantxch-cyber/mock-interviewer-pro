@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — InterviewAI Pro</title>
+  <meta name="description" content="Track your interview progress, skill breakdown, and session history with InterviewAI Pro's personalized dashboard.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@0.344.0"></script>
   <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
 </head>
 <body>
 <div class="app-shell">
@@ -90,9 +93,15 @@
 <!-- Toast -->
 <div class="toast-stack" id="toastStack"></div>
 
-<script src="js/store.js" type="module"></script>
 <script type="module">
   import { AppStore } from './js/store.js';
+
+  // XSS sanitizer
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
 
   function renderDashboard() {
     const stats = AppStore.getStats();
@@ -105,7 +114,7 @@
 
     document.getElementById('contentArea').innerHTML = `
       <div class="dashboard-header">
-        <h1>Welcome back, ${user.name}!
+        <h1>Welcome back, ${esc(user.name)}!
           <span class="readiness-pill"><i data-lucide="trending-up" style="width:12px;height:12px"></i> ${stats.readiness}% Ready</span>
         </h1>
         <p>You've completed <strong>${stats.totalSessions}</strong> sessions this month. You're on a <strong>🔥 ${user.streak}-day streak!</strong></p>

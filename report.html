@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interview Report — InterviewAI Pro</title>
+  <meta name="description" content="Detailed interview performance report with personality analysis, strengths, improvement roadmap, and hiring probability.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@0.344.0"></script>
   <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
 </head>
 <body>
 <div class="ambient-bg">
@@ -40,6 +44,13 @@
 <script>
   lucide.createIcons();
 
+  // XSS sanitizer
+  function escapeHTML(str) {
+    const d = document.createElement('div');
+    d.textContent = String(str);
+    return d.innerHTML;
+  }
+
   const DEFAULT_REPORT = {
     mode: 'technical',
     totalScore: 76,
@@ -59,7 +70,12 @@
     ]
   };
 
-  const report = JSON.parse(localStorage.getItem('lastReport') || JSON.stringify(DEFAULT_REPORT));
+  let report;
+  try {
+    report = JSON.parse(localStorage.getItem('lastReport') || 'null') || DEFAULT_REPORT;
+  } catch(e) {
+    report = DEFAULT_REPORT;
+  }
   const score = report.totalScore || 76;
   const conf = report.avgConf || 79;
   const fillers = report.totalFillers || 0;

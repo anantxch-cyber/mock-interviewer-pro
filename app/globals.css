@@ -14,6 +14,17 @@
   }
   
   .glass-card:hover {
-    @apply border-primary/30 shadow-primaryGlow/20 -translate-y-1;
+    @apply border-primary/30 -translate-y-1;
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
   }
+}
+
+/* Animations referenced by page.tsx and interview/page.tsx */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
 }

@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interview Session — InterviewAI Pro</title>
+  <meta name="description" content="Live AI-powered mock interview session with real-time telemetry, voice recognition, and adaptive questions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@0.344.0"></script>
   <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
 </head>
 <body>
 <div class="ambient-bg">
@@ -157,6 +161,13 @@
   // =============================================
   // Interview Engine
   // =============================================
+
+  // XSS sanitizer — prevents injection via innerHTML
+  function escapeHTML(str) {
+    const d = document.createElement('div');
+    d.textContent = String(str);
+    return d.innerHTML;
+  }
   const QUESTIONS = {
     technical: [
       "Explain the difference between let, const, and var in JavaScript. When would you use each?",
@@ -321,14 +332,18 @@
 
   function renderHistory() {
     const hist = document.getElementById('questionHistory');
-    hist.innerHTML = answers.slice(0, currentQ).reverse().slice(0, 3).map((a, i) => `
+    const recent = answers.slice().reverse().slice(0, 3);
+    hist.innerHTML = recent.map((a, i) => {
+      const qIdx = answers.length - 1 - i;
+      const qText = escapeHTML((questions[qIdx] || '').substring(0, 40));
+      return `
       <div style="padding:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--text-2);">
-        <div style="color:var(--text-1);font-weight:600;margin-bottom:4px;">Q${questions.length - i}: ${questions[questions.length - 1 - i]?.substring(0, 40)}...</div>
+        <div style="color:var(--text-1);font-weight:600;margin-bottom:4px;">Q${qIdx + 1}: ${qText}...</div>
         <div style="display:flex;gap:6px;margin-top:4px;">
           <span style="background:rgba(16,185,129,0.1);color:var(--green);padding:2px 6px;border-radius:4px;font-size:0.7rem;">Answered</span>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   }
 
   function submitAnswer() {
@@ -393,6 +408,7 @@
 
   function endSession() {
     clearInterval(timerInterval);
+    if (recognition && isRecording) { try { recognition.stop(); } catch(e) {} }
 
     // Build results
     const totalScore = answers.length > 0 ? Math.round(answers.reduce((s, a) => s + (a.score || 0), 0) / answers.length) : 0;
@@ -413,6 +429,12 @@
 
     location.href = 'report.html';
   }
+
+  // Cleanup on page unload to prevent timer/mic leaks
+  window.addEventListener('beforeunload', () => {
+    clearInterval(timerInterval);
+    if (recognition && isRecording) { try { recognition.stop(); } catch(e) {} }
+  });
 
   // Timer
   function startTimer() {
@@ -446,6 +468,7 @@
       recognition = new SR();
       recognition.continuous = true;
       recognition.interimResults = true;
+      recognition.lang = 'en-US';
 
       recognition.onresult = (event) => {
         let interim = '';
@@ -462,7 +485,6 @@
         fillers.forEach(f => {
           if (final.toLowerCase().includes(f)) {
             fillerCount++;
-            // Light up a blip
             const blip = document.getElementById(`fblip-${Math.min(fillerCount - 1, 19)}`);
             if (blip) blip.classList.add('hit');
           }
@@ -472,7 +494,31 @@
         updateTelemetry(currentTranscript.split(/\s+/).length);
       };
 
-      recognition.onerror = () => { stopRecording(); };
+      recognition.onerror = (e) => {
+        console.warn('Speech recognition error:', e.error);
+        if (e.error === 'not-allowed') {
+          showToast('Microphone permission denied. Please allow microphone access.', 'warning');
+        } else if (e.error === 'no-speech') {
+          showToast('No speech detected. Try speaking louder.', 'info');
+        }
+        stopRecording();
+      };
+
+      recognition.onend = () => {
+        // Auto-restart if still in recording mode (handles browser auto-stop)
+        if (isRecording) {
+          try { recognition.start(); } catch(e) {}
+        }
+      };
+    } else {
+      // Disable voice tab if no speech API
+      const voiceTab = document.getElementById('tabVoice');
+      if (voiceTab) {
+        voiceTab.disabled = true;
+        voiceTab.title = 'Voice input requires a Chromium-based browser (Chrome, Edge, Brave)';
+        voiceTab.style.opacity = '0.4';
+        voiceTab.style.cursor = 'not-allowed';
+      }
     }
   }
 
@@ -540,14 +586,14 @@
     }
   }
 
-  // Toast
+  // Toast — uses escapeHTML to prevent XSS
   function showToast(msg, type = 'info') {
     const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'alert-triangle' : 'info';
     const color = type === 'success' ? 'var(--green)' : type === 'warning' ? 'var(--yellow)' : 'var(--primary)';
     const t = document.createElement('div');
     t.className = 'toast';
     t.style.borderLeftColor = color;
-    t.innerHTML = `<i data-lucide="${icon}" style="color:${color}"></i><span>${msg}</span>`;
+    t.innerHTML = `<i data-lucide="${icon}" style="color:${color}"></i><span>${escapeHTML(msg)}</span>`;
     document.getElementById('toastStack').appendChild(t);
     lucide.createIcons({ root: t });
     setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(120%)'; t.style.transition = 'all 0.3s ease'; setTimeout(() => t.remove(), 300); }, 3500);

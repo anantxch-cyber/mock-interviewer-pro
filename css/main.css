@@ -354,7 +354,6 @@ body {
 .hero-stats {
   display: flex;
   align-items: center;
-  gap: 0;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
@@ -1688,6 +1687,11 @@ body {
   width: 4px;
   background: var(--primary);
   border-radius: var(--radius-full);
+  animation: none;
+  height: 8px;
+}
+
+.voice-ui.active .wave-bar {
   animation: wave 1.2s ease-in-out infinite alternate;
 }
 
@@ -2322,6 +2326,46 @@ body {
     width: 100%;
     height: auto;
     flex-direction: row;
+    padding: 12px 0;
+    overflow-x: auto;
+  }
+
+  .sidebar-brand {
+    padding: 0 16px 0;
+    border-bottom: none;
+    margin-bottom: 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    padding: 0 8px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .sidebar-section {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+  }
+
+  .sidebar-section-label {
+    display: none;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .content-area {
+    padding: 20px;
+  }
+
+  .topbar {
+    padding: 0 20px;
   }
 
   .interview-body {
@@ -2346,5 +2390,22 @@ body {
 
   .nav-links {
     display: none;
+  }
+
+  .setup-page {
+    padding: 100px 20px 60px;
+  }
+
+  .setup-card {
+    padding: 24px;
+  }
+
+  .report-page {
+    padding: 80px 16px 60px;
+  }
+
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
