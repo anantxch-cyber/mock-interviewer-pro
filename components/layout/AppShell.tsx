@@ -61,7 +61,7 @@ function SidebarSection({ label, children }: { label: string; children: React.Re
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
   const router = useRouter();
 
@@ -70,10 +70,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     await signOut();
   };
 
-  const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const name = profile?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const email = user?.email || '';
   const initials = getInitials(name);
-  const xp = 1820; // TODO: fetch from profiles table
+  const xp = profile?.xp ?? 0;
+  const level = profile?.level ?? 1;
+  // XP needed to reach next level (simple formula: level * 500)
+  const xpForNextLevel = level * 500;
+  const xpProgress = Math.min(100, Math.round((xp % xpForNextLevel) / xpForNextLevel * 100));
 
   return (
     <div className="flex min-h-screen bg-[#040405]">
@@ -109,12 +113,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {/* XP Bar */}
           <div className="mb-3 px-1">
             <div className="flex justify-between text-[11px] mb-1.5">
-              <span className="text-[#52525b] font-medium">Level 7 — Pro</span>
+              <span className="text-[#52525b] font-medium">Level {level}</span>
               <span className="text-[#71717a]">{xp.toLocaleString()} XP</span>
             </div>
             <div className="h-1 bg-[#1c1c1f] rounded-full overflow-hidden">
               <motion.div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                initial={{ width: 0 }} animate={{ width: '64%' }} transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }} />
+                initial={{ width: 0 }} animate={{ width: `${xpProgress}%` }} transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }} />
             </div>
           </div>
 

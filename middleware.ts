@@ -6,10 +6,10 @@ const SUPABASE_URL =
   'https://nfzfpnqzhvvawhxgoihq.supabase.co';
 
 const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   'sb_publishable_QTzseSTQTdyJVfIb1ju-eg_EYm-yf90';
 
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password'];
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/auth/update-password'];
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request: { headers: request.headers } });
@@ -31,7 +31,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some(p => path === p) || path.startsWith('/api/') || path.startsWith('/auth/');
+
+  const isPublic =
+    PUBLIC_PATHS.some(p => path === p) ||
+    path.startsWith('/api/') ||
+    path.startsWith('/auth/');
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

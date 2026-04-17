@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import {
+  BrainCircuit, Code2, MessageCircle, Users, Zap, Network, FileText,
+  ArrowLeft, ArrowRight, CheckCircle
+} from 'lucide-react';
 
 interface Config {
   mode: string; role: string; exp: string;
@@ -11,12 +15,12 @@ interface Config {
 }
 
 const MODES = [
-  { mode: 'technical', icon: 'code-2', title: 'Technical', desc: 'DS&A, System Design, Coding concepts', bg: 'rgba(99,102,241,0.15)', color: '#6366f1' },
-  { mode: 'behavioral', icon: 'message-circle', title: 'Behavioral', desc: 'STAR stories, leadership, teamwork', bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
-  { mode: 'hr', icon: 'users', title: 'HR Round', desc: 'Culture fit, salary, motivations', bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
-  { mode: 'stress', icon: 'zap', title: 'Stress Test', desc: 'Rapid fire, pressure, interruptions', bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
-  { mode: 'system-design', icon: 'network', title: 'System Design', desc: 'Architecture, scalability, tradeoffs', bg: 'rgba(168,85,247,0.15)', color: '#a855f7' },
-  { mode: 'resume', icon: 'file-text', title: 'Resume-Based', desc: 'Questions from your own projects', bg: 'rgba(6,182,212,0.15)', color: '#06b6d4' },
+  { mode: 'technical',     Icon: Code2,        title: 'Technical',      desc: 'DS&A, System Design, Coding concepts', bg: 'rgba(99,102,241,0.15)',  color: '#6366f1' },
+  { mode: 'behavioral',    Icon: MessageCircle, title: 'Behavioral',     desc: 'STAR stories, leadership, teamwork',   bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b' },
+  { mode: 'hr',            Icon: Users,         title: 'HR Round',       desc: 'Culture fit, salary, motivations',     bg: 'rgba(16,185,129,0.15)',  color: '#10b981' },
+  { mode: 'stress',        Icon: Zap,           title: 'Stress Test',    desc: 'Rapid fire, pressure, interruptions',  bg: 'rgba(239,68,68,0.15)',   color: '#ef4444' },
+  { mode: 'system-design', Icon: Network,       title: 'System Design',  desc: 'Architecture, scalability, tradeoffs', bg: 'rgba(168,85,247,0.15)',  color: '#a855f7' },
+  { mode: 'resume',        Icon: FileText,      title: 'Resume-Based',   desc: 'Questions from your own projects',     bg: 'rgba(6,182,212,0.15)',   color: '#06b6d4' },
 ];
 
 const MODE_LABELS: Record<string, string> = {
@@ -31,10 +35,6 @@ function SetupContent() {
   const [config, setConfig] = useState<Config>({
     mode: searchParams.get('mode') || 'technical',
     role: '', exp: 'junior', company: '', numQ: 8, focus: '',
-  });
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
   });
 
   const nextStep = () => {
@@ -57,12 +57,12 @@ function SetupContent() {
       <nav className="nav nav-scrolled">
         <div className="nav-inner">
           <Link href="/" className="nav-brand">
-            <div className="brand-icon"><i data-lucide="brain-circuit" /></div>
+            <div className="brand-icon"><BrainCircuit size={16} /></div>
             <span>InterviewAI</span>
           </Link>
           <div className="nav-actions">
             <button className="btn btn-ghost" onClick={() => router.back()}>
-              <i data-lucide="arrow-left" /> Back
+              <ArrowLeft size={15} style={{ display: 'inline', marginRight: 4 }} /> Back
             </button>
           </div>
         </div>
@@ -79,7 +79,7 @@ function SetupContent() {
           {[1, 2, 3].map((n, i) => (
             <>
               <div key={n} className={`step ${step >= n ? 'active' : ''} ${step > n ? 'done' : ''}`}>
-                <div className="step-num">{step > n ? '✓' : n}</div>
+                <div className="step-num">{step > n ? <CheckCircle size={14} /> : n}</div>
               </div>
               {i < 2 && (
                 <div key={`line-${n}`} className="step-line" style={{ background: step > n ? 'var(--green)' : undefined }} />
@@ -101,7 +101,7 @@ function SetupContent() {
                 >
                   <input type="radio" name="mode" value={m.mode} checked={config.mode === m.mode} readOnly />
                   <div className="mode-select-icon" style={{ background: m.bg, color: m.color }}>
-                    <i data-lucide={m.icon} />
+                    <m.Icon size={18} />
                   </div>
                   <div><h4>{m.title}</h4><p>{m.desc}</p></div>
                 </label>
@@ -193,11 +193,14 @@ function SetupContent() {
         <div className="setup-actions">
           {step > 1 ? (
             <button className="btn btn-ghost" onClick={prevStep}>
-              <i data-lucide="arrow-left" /> Back
+              <ArrowLeft size={15} style={{ display: 'inline', marginRight: 4 }} /> Back
             </button>
           ) : <div />}
           <button className="btn btn-primary glow" onClick={nextStep}>
-            {step === 3 ? '🚀 Launch Interview' : <>Continue <i data-lucide="arrow-right" /></>}
+            {step === 3
+              ? '🚀 Launch Interview'
+              : <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Continue <ArrowRight size={15} /></span>
+            }
           </button>
         </div>
       </div>

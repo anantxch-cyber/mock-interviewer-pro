@@ -48,8 +48,10 @@ export default function LandingPage() {
             <Link href="/report" className="nav-link">Reports</Link>
           </div>
           <div className="nav-actions">
-            <button className="btn btn-ghost" onClick={() => router.push('/dashboard')}>Sign In</button>
-            <button className="btn btn-primary glow" onClick={() => router.push('/setup')}>Start Free →</button>
+            {/* Fix Bug #4: "Sign In" navigates to /login, not /dashboard */}
+            <button className="btn btn-ghost" onClick={() => router.push('/login')}>Sign In</button>
+            {/* Fix Bug #5: "Start Free" navigates to /signup */}
+            <button className="btn btn-primary glow" onClick={() => router.push('/signup')}>Start Free →</button>
           </div>
         </div>
       </nav>
@@ -69,11 +71,12 @@ export default function LandingPage() {
           deep feedback, and a personalized improvement roadmap — all in one premium platform.
         </p>
         <div className="hero-cta">
-          <button className="btn btn-primary btn-xl glow" onClick={() => router.push('/setup')}>
+          {/* Primary CTA → signup for unauthenticated visitors */}
+          <button className="btn btn-primary btn-xl glow" onClick={() => router.push('/signup')}>
             <PlayCircle size={18} /> Start Mock Interview
           </button>
-          <button className="btn btn-outline btn-xl" onClick={() => router.push('/dashboard')}>
-            <LayoutDashboard size={18} /> View Dashboard
+          <button className="btn btn-outline btn-xl" onClick={() => router.push('/login')}>
+            <LayoutDashboard size={18} /> Sign In
           </button>
         </div>
         <div className="hero-stats">
@@ -99,7 +102,7 @@ export default function LandingPage() {
             { Icon: FileText, title: 'Resume Intelligence', desc: 'Upload your resume. AI extracts your projects and fires custom questions at you.', tags: [], large: false, iconClass: 'icon-orange' },
             { Icon: Trophy, title: 'Gamified Learning', desc: 'Climb XP levels, earn badges, maintain streaks, and compete on daily challenges.', tags: ['🔥 Streaks', '⭐ XP System', '🏆 Badges'], large: true, iconClass: 'icon-pink' },
           ].map(({ Icon, title, desc, tags, large, iconClass }) => (
-            <div key={title} className={`feature-card${large ? ' feature-card-large' : ''}`} onClick={() => router.push('/setup')}>
+            <div key={title} className={`feature-card${large ? ' feature-card-large' : ''}`} onClick={() => router.push('/signup')}>
               <div className={`feature-icon ${iconClass}`}><Icon size={22} /></div>
               <h3>{title}</h3>
               <p>{desc}</p>
@@ -116,7 +119,7 @@ export default function LandingPage() {
         </div>
         <div className="modes-grid">
           {MODES.map(({ mode, Icon, title, desc, bg, color }) => (
-            <div key={mode} className="mode-card" onClick={() => router.push(`/setup?mode=${mode}`)}>
+            <div key={mode} className="mode-card" onClick={() => router.push(`/signup`)}>
               <div className="mode-icon" style={{ background: bg, color }}><Icon size={20} /></div>
               <div><h4>{title}</h4><p>{desc}</p></div>
               <ArrowRight size={16} className="mode-arrow" />

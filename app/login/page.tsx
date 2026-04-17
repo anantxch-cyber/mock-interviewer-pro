@@ -1,6 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -30,17 +30,20 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Show error toast if redirected back from failed OAuth
-  const error = searchParams.get('error');
-  if (error && typeof window !== 'undefined') {
+  // Show error toast once if redirected back from a failed OAuth flow
+  const oauthError = searchParams.get('error');
+  useEffect(() => {
+    if (!oauthError) return;
+    const msg =
+      oauthError === 'oauth_failed' ? 'Google sign-in failed. Please try again.' :
+      oauthError === 'no_code'      ? 'Authentication code missing. Try again.' :
+                                      'Sign-in failed. Please try again.';
     setTimeout(() => {
-      if (error === 'oauth_failed') toast.error('Google sign-in failed. Please try again.');
-      else if (error === 'no_code') toast.error('Authentication code missing. Try again.');
-      else toast.error('Sign-in failed. Please try again.');
-      // Clean URL
+      toast.error(msg);
       window.history.replaceState({}, '', '/login');
     }, 100);
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const validate = (): boolean => {
     const result = loginSchema.safeParse(form);

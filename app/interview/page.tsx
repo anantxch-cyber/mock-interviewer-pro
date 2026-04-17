@@ -3,6 +3,10 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import {
+  Type, Mic, Square, RotateCcw, Send, SkipForward, XCircle, Loader2
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 // ─── Question Bank ────────────────────────────────────────
 const QUESTIONS: Record<string, string[]> = {
@@ -91,12 +95,6 @@ const MODE_LABELS: Record<string, string> = {
 
 interface Answer { q: string; answer: string; score: number; confidence: number; fillerWords: number; wordCount: number; }
 
-function escapeHTML(str: string) {
-  const d = document.createElement('div');
-  d.textContent = String(str);
-  return d.innerHTML;
-}
-
 function analyzeAnswer(text: string) {
   const words = text.split(/\s+/).filter(w => w).length;
   const fillers = ['uh', 'um', 'like', 'you know', 'sort of', 'basically', 'kind of'];
@@ -117,6 +115,7 @@ function analyzeAnswer(text: string) {
 function InterviewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
 
   // Load config
   const [config] = useState(() => {
@@ -145,6 +144,7 @@ function InterviewContent() {
   const [telemetry, setTelemetry] = useState({ words: 0, lengthPct: 0, lengthLabel: 'Too Short', lengthColor: 'var(--yellow)', confPct: 82, fillers: 0 });
   const [voiceSupported, setVoiceSupported] = useState(true);
   const [toasts, setToasts] = useState<{ id: number; msg: string; type: string }[]>([]);
+  const [saving, setSaving] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
@@ -154,13 +154,11 @@ function InterviewContent() {
   // Timer
   useEffect(() => {
     timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000);
-    return () => { clearInterval(timerRef.current); if (recognitionRef.current && isRecording) { try { recognitionRef.current.stop(); } catch {} } };
+    return () => {
+      clearInterval(timerRef.current);
+      if (recognitionRef.current && isRecording) { try { recognitionRef.current.stop(); } catch {} }
+    };
   }, []);
-
-  // Lucide
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
-  });
 
   // Speech init
   useEffect(() => {
@@ -181,7 +179,6 @@ function InterviewContent() {
         updateTelemetryFromWords(next.split(/\s+/).filter(w => w).length);
         return next;
       });
-      // Filler detection
       const fillerWords = ['uh', 'um', 'like', 'you know'];
       fillerWords.forEach(f => { if (final.toLowerCase().includes(f)) setFillerCount(c => c + 1); });
     };
@@ -207,8 +204,7 @@ function InterviewContent() {
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setTextAnswer(val);
-    const words = val.split(/\s+/).filter(w => w).length;
-    updateTelemetryFromWords(words);
+    updateTelemetryFromWords(val.split(/\s+/).filter(w => w).length);
   };
 
   const showToast = (msg: string, type = 'info') => {
@@ -246,7 +242,12 @@ function InterviewContent() {
 
     setTimeout(() => {
       if (currentQ + 1 >= questions.length) endSession(newAnswers);
-      else { setCurrentQ(q => q + 1); setTextAnswer(''); setTranscript(''); setFillerCount(0); setAiHint(AI_HINTS[(currentQ + 1) % AI_HINTS.length]); updateTelemetryFromWords(0); }
+      else {
+        setCurrentQ(q => q + 1);
+        setTextAnswer(''); setTranscript(''); setFillerCount(0);
+        setAiHint(AI_HINTS[(currentQ + 1) % AI_HINTS.length]);
+        updateTelemetryFromWords(0);
+      }
     }, 2000);
   };
 
@@ -258,18 +259,46 @@ function InterviewContent() {
     else { setCurrentQ(q => q + 1); setTextAnswer(''); setTranscript(''); setFillerCount(0); }
   };
 
-  const endSession = (finalAnswers = answers) => {
+  const endSession = async (finalAnswers = answers) => {
     clearInterval(timerRef.current);
     if (recognitionRef.current && isRecording) { try { recognitionRef.current.stop(); } catch {} }
+
     const totalScore = finalAnswers.length > 0 ? Math.round(finalAnswers.reduce((s, a) => s + (a.score || 0), 0) / finalAnswers.length) : 0;
     const avgConf = finalAnswers.length > 0 ? Math.round(finalAnswers.reduce((s, a) => s + (a.confidence || 0), 0) / finalAnswers.length) : 0;
     const totalFillers = finalAnswers.reduce((s, a) => s + (a.fillerWords || 0), 0);
     const report = { mode, questions, answers: finalAnswers, totalScore, avgConf, totalFillers, duration: elapsed, date: new Date().toISOString() };
+
+    // Always save to localStorage first (fast, always works)
     localStorage.setItem('lastReport', JSON.stringify(report));
     const stats = JSON.parse(localStorage.getItem('interviewStats') || '{"totalSessions":0,"totalXP":0}');
     stats.totalSessions = (stats.totalSessions || 0) + 1;
     stats.totalXP = (stats.totalXP || 0) + Math.round(totalScore * 2 + 50);
     localStorage.setItem('interviewStats', JSON.stringify(stats));
+
+    // Fix Bug #10: Write session to Supabase DB so history persists across devices
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase.from('sessions') as any).insert({
+          user_id: user.id,
+          mode,
+          role: config.role || null,
+          total_score: totalScore,
+          avg_confidence: avgConf,
+          filler_words: totalFillers,
+          duration_secs: elapsed,
+          questions: questions,
+          answers: finalAnswers,
+        });
+      }
+    } catch (err) {
+      // Non-fatal — localStorage data still intact
+      console.warn('[interview] Failed to persist session to DB:', err);
+    } finally {
+      setSaving(false);
+    }
+
     router.push('/report');
   };
 
@@ -287,15 +316,20 @@ function InterviewContent() {
           <div className="interview-topbar-left">
             <div className="recording-dot" />
             <div className="interview-meta">
-              <strong id="modeLabel">{modeLabel}</strong>
+              <strong>{modeLabel}</strong>
               <span> · </span>
               <span>{config.role || 'Software Engineer'}</span>
             </div>
           </div>
           <div className="timer">{m}:{s}</div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button className="btn btn-ghost" onClick={skipQuestion} style={{ padding: '7px 14px', fontSize: '0.8rem' }}>Skip →</button>
-            <button className="btn btn-danger" onClick={() => endSession()} style={{ padding: '7px 14px', fontSize: '0.8rem' }}>End Session</button>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            {saving && <Loader2 size={14} className="text-indigo-400" style={{ animation: 'spin 1s linear infinite' }} />}
+            <button className="btn btn-ghost" onClick={skipQuestion} style={{ padding: '7px 14px', fontSize: '0.8rem' }}>
+              Skip <SkipForward size={13} style={{ display: 'inline', marginLeft: 2 }} />
+            </button>
+            <button className="btn btn-danger" onClick={() => endSession()} style={{ padding: '7px 14px', fontSize: '0.8rem' }}>
+              <XCircle size={13} style={{ display: 'inline', marginRight: 4 }} /> End Session
+            </button>
           </div>
         </div>
 
@@ -323,7 +357,7 @@ function InterviewContent() {
             <div className="answer-section">
               <div className="answer-tabs">
                 <button className={`answer-tab${activeTab === 'text' ? ' active' : ''}`} onClick={() => setActiveTab('text')}>
-                  <i data-lucide="type" /> Type Answer
+                  <Type size={14} style={{ display: 'inline', marginRight: 5 }} /> Type Answer
                 </button>
                 <button
                   className={`answer-tab${activeTab === 'voice' ? ' active' : ''}`}
@@ -332,7 +366,7 @@ function InterviewContent() {
                   title={!voiceSupported ? 'Requires Chrome/Edge' : undefined}
                   style={!voiceSupported ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
                 >
-                  <i data-lucide="mic" /> Voice Answer
+                  <Mic size={14} style={{ display: 'inline', marginRight: 5 }} /> Voice Answer
                 </button>
               </div>
 
@@ -349,7 +383,7 @@ function InterviewContent() {
                     ))}
                   </div>
                   <button className={`mic-button${isRecording ? ' recording' : ''}`} onClick={toggleRecording} aria-label="Toggle microphone">
-                    <i data-lucide={isRecording ? 'square' : 'mic'} />
+                    {isRecording ? <Square size={18} /> : <Mic size={18} />}
                   </button>
                   <div className="transcript-preview">
                     {transcript || (isRecording ? 'Listening...' : 'Press the microphone button to start speaking')}
@@ -360,11 +394,11 @@ function InterviewContent() {
               <div className="answer-controls">
                 <div className="answer-controls-left">
                   <button className="btn btn-ghost" onClick={() => { setTextAnswer(''); setTranscript(''); updateTelemetryFromWords(0); }}>
-                    <i data-lucide="rotate-ccw" /> Clear
+                    <RotateCcw size={13} style={{ display: 'inline', marginRight: 4 }} /> Clear
                   </button>
                 </div>
                 <button className="btn btn-primary glow" onClick={submitAnswer}>
-                  Submit Answer <i data-lucide="send" />
+                  Submit Answer <Send size={13} style={{ display: 'inline', marginLeft: 4 }} />
                 </button>
               </div>
             </div>
